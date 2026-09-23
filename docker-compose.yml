@@ -1,0 +1,74 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: knowledge-base-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-change-me}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-knowledge_base}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - knowledge-base-mysql:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: knowledge-base-qdrant
+    restart: unless-stopped
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+    volumes:
+      - knowledge-base-qdrant:/qdrant/storage
+
+  app:
+    build: .
+    container_name: knowledge-base-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      APP_PORT: 3001
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3001}
+      PUBLIC_BASE_PATH: ${PUBLIC_BASE_PATH:-/knowledge-base-frontend}
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-knowledge_base}
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-change-me}
+      UPLOAD_DIR: /app/storage
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-50}
+      AUTH_COOKIE_NAME: ${AUTH_COOKIE_NAME:-kb_session}
+      AUTH_SESSION_DAYS: ${AUTH_SESSION_DAYS:-14}
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+      SECURE_COOKIES: ${SECURE_COOKIES:-false}
+      DEFAULT_USER_EMAIL: ${DEFAULT_USER_EMAIL:-local@knowledge-base.dev}
+      DEFAULT_USER_NAME: ${DEFAULT_USER_NAME:-本地系统用户}
+      AI_BASE_URL: ${AI_BASE_URL:-}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_CHAT_MODEL: ${AI_CHAT_MODEL:-}
+      AI_EMBEDDING_MODEL: ${AI_EMBEDDING_MODEL:-}
+      AI_TIMEOUT_MS: ${AI_TIMEOUT_MS:-120000}
+      AI_MAX_RETRIES: ${AI_MAX_RETRIES:-3}
+      # The host development server uses QDRANT_URL=http://localhost:6333;
+      # the containerized app must use the Compose service name instead.
+      QDRANT_URL: ${DOCKER_QDRANT_URL:-http://qdrant:6333}
+      QDRANT_API_KEY: ${QDRANT_API_KEY:-}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-knowledge_base_chunks}
+    ports:
+      - "${APP_PORT:-3001}:3001"
+    volumes:
+      - ./storage:/app/storage
+
+volumes:
+  knowledge-base-mysql:
+  knowledge-base-qdrant:

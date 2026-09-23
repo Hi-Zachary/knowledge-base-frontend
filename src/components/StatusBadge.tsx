@@ -1,7 +1,8 @@
 import type { DocStatus } from "../types";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, Clock3, Loader2, XCircle } from "lucide-react";
 
 const config: Record<DocStatus, { label: string; className: string; icon: typeof CheckCircle2 }> = {
+  pending: { label: "待解析", className: "text-slate-600 bg-slate-100", icon: Clock3 },
   parsed: { label: "已解析", className: "text-emerald-600 bg-emerald-50", icon: CheckCircle2 },
   parsing: { label: "解析中", className: "text-amber-600 bg-amber-50", icon: Loader2 },
   failed: { label: "解析失败", className: "text-rose-600 bg-rose-50", icon: XCircle },

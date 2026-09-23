@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { BookOpenText, FolderKanban, MessageCircleQuestion, Sparkles } from "lucide-react";
+import { BookOpenText, FolderKanban, LogOut, MessageCircleQuestion, Sparkles } from "lucide-react";
+import { useAuth } from "../store/AuthContext";
 
 const navItems = [
   { to: "/", label: "资料管理", icon: FolderKanban },
@@ -8,6 +9,7 @@ const navItems = [
 ];
 
 export default function Layout() {
+  const { user, logout } = useAuth();
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-800">
       <aside className="flex w-60 flex-col border-r border-slate-200 bg-white">
@@ -36,8 +38,10 @@ export default function Layout() {
             </NavLink>
           ))}
         </nav>
-        <div className="mt-auto px-5 py-4 text-xs text-slate-400">
-          原型演示 · 数据均为模拟数据
+        <div className="mt-auto border-t border-slate-100 px-5 py-4">
+          <p className="truncate text-sm font-medium text-slate-700">{user?.displayName}</p>
+          <p className="truncate text-xs text-slate-400">{user?.email}</p>
+          <button onClick={() => void logout()} className="mt-3 flex items-center gap-1.5 text-xs text-slate-500 hover:text-rose-600"><LogOut className="h-3.5 w-3.5" />退出登录</button>
         </div>
       </aside>
       <main className="flex-1 overflow-y-auto">

@@ -8,6 +8,13 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+dist-server
+storage
+.local-mysql
+*.log
+.env
+.env.*
+!.env.example
 dist
 dist-ssr
 *.local

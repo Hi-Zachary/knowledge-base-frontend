@@ -1,24 +1,50 @@
-export type DocStatus = "parsed" | "parsing" | "failed";
+export type DocStatus = "pending" | "parsed" | "parsing" | "failed";
 
-export type DocCategory = "课程资料" | "论文" | "项目文档";
+export interface DocCategory {
+  id: string;
+  name: string;
+}
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  displayName: string;
+  role: "user" | "admin";
+}
 
 export interface KnowledgeDoc {
   id: string;
   name: string;
   type: "PDF" | "Word" | "Markdown" | "TXT";
-  category: DocCategory;
+  category: string;
+  categoryId: string;
   uploadedAt: string;
   sizeKB: number;
   status: DocStatus;
-  summary?: string;
-  keyPoints?: string[];
-  outline?: string[];
+  errorMessage?: string | null;
+  parsedAt?: string | null;
+  indexedAt?: string | null;
+  downloadUrl: string;
+  previewUrl: string;
 }
 
 export interface SourceRef {
   docId: string;
+  documentId?: string;
   docName: string;
   snippet: string;
+  pageNo?: number | null;
+  fileExtension?: string | null;
+}
+
+export interface DashboardStats {
+  documents: number;
+  parsedDocuments: number;
+  processingDocuments: number;
+  failedDocuments: number;
+  chunks: number;
+  questions: number;
+  sessions: number;
 }
 
 export interface ChatMessage {
@@ -27,4 +53,22 @@ export interface ChatMessage {
   content: string;
   sources?: SourceRef[];
   noMatch?: boolean;
+}
+
+export interface ChatSession {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  messageCount: number;
+}
+
+export interface StudyGeneration {
+  id: string;
+  documentId: string;
+  summary: string;
+  keyPoints: string[];
+  outline: string[];
+  generatedAt: string;
+  modelName: string | null;
 }

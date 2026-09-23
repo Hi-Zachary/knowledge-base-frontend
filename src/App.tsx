@@ -4,17 +4,22 @@ import DocsPage from "./pages/DocsPage";
 import QAPage from "./pages/QAPage";
 import AssistPage from "./pages/AssistPage";
 import { DocsProvider } from "./store/DocsContext";
+import AuthPage from "./pages/AuthPage";
+import RequireAuth from "./components/RequireAuth";
+import { AuthProvider } from "./store/AuthContext";
 
 export default function App() {
   return (
-    <DocsProvider>
+    <AuthProvider>
       <Routes>
-        <Route element={<Layout />}>
+        <Route path="/login" element={<AuthPage mode="login" />} />
+        <Route path="/register" element={<AuthPage mode="register" />} />
+        <Route element={<RequireAuth><DocsProvider><Layout /></DocsProvider></RequireAuth>}>
           <Route path="/" element={<DocsPage />} />
           <Route path="/qa" element={<QAPage />} />
           <Route path="/assist" element={<AssistPage />} />
         </Route>
       </Routes>
-    </DocsProvider>
+    </AuthProvider>
   );
 }
